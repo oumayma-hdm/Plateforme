@@ -1,10 +1,14 @@
 {
   "version": 2,
-  "builds": [{ "src": "api/index.js", "use": "@vercel/node" }],
+  "builds": [
+    { "src": "api/index.js", "use": "@vercel/node" },
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
   "routes": [
     { "src": "/connect/linkedin", "dest": "/api/index.js" },
     { "src": "/unipile/notify", "dest": "/api/index.js" },
-    { "src": "/(success|failure)", "dest": "/public/$1.html" },
+    { "src": "/success", "dest": "/public/success.html" },
+    { "src": "/failure", "dest": "/public/failure.html" },
     { "src": "/", "dest": "/public/index.html" }
   ]
 }
