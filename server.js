@@ -126,29 +126,19 @@ app.post("/unipile/notify", (req, res) => {
 // Proxy Unipile API via our domain so the hosted wizard can call port 443
 if (UNIPILE_DSN) {
   const target = unipileBaseUrl || UNIPILE_DSN;
-  // Preflight handling for CORS on proxied path
-  app.options(
-    ["/api/v1", "/api/v1/:path*"],
-    cors({
-      origin: "https://account.unipile.com",
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "x-api-key"],
-      credentials: false,
-    })
-  );
-  app.options(
-    ["/unipile-api", "/unipile-api/:path*"],
-    cors({
-      origin: "https://account.unipile.com",
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "x-api-key"],
-      credentials: false,
-    })
-  );
+  // CORS on base paths (handles preflight automatically)
+  const corsForHosted = cors({
+    origin: "https://account.unipile.com",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "x-api-key"],
+    credentials: false,
+  });
+  app.use("/api/v1", corsForHosted);
+  app.use("/unipile-api", corsForHosted);
 
   // Some hosted flows build absolute "/api/v1/..." paths from api_url origin only
   app.use(
-    ["/api/v1", "/api/v1/*"],
+    "/api/v1",
     createProxyMiddleware({
       target,
       changeOrigin: true,
@@ -168,7 +158,7 @@ if (UNIPILE_DSN) {
   );
 
   app.use(
-    ["/unipile-api", "/unipile-api/*"],
+    "/unipile-api",
     createProxyMiddleware({
       target,
       changeOrigin: true,
