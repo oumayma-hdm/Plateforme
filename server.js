@@ -45,10 +45,11 @@ if (!UNIPILE_DSN || !UNIPILE_API_KEY) {
 }
 
 let unipile = null;
+let unipileBaseUrl = null;
 if (UNIPILE_DSN && UNIPILE_API_KEY) {
   const dsnIsUrl = /^https?:\/\//i.test(UNIPILE_DSN);
-  const base = dsnIsUrl ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
-  unipile = new UnipileClient(base, UNIPILE_API_KEY);
+  unipileBaseUrl = dsnIsUrl ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
+  unipile = new UnipileClient(unipileBaseUrl, UNIPILE_API_KEY);
 }
 
 app.get("/", (_req, res) => {
@@ -67,7 +68,8 @@ app.get("/connect/linkedin", async (_req, res) => {
     const hosted = await unipile.account.createHostedAuthLink({
       type: "create",
       expiresOn,
-      api_url: BASE_URL,
+      // Important: api_url must point to your Unipile API base (DSN), not your app URL
+      api_url: unipileBaseUrl,
       providers: ["LINKEDIN"],
       success_redirect_url: SUCCESS_URL,
       failure_redirect_url: FAILURE_URL,
