@@ -15,7 +15,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.1",
+    "http-proxy-middleware": "^2.0.6",
     "unipile-node-sdk": "^1.9.3"
   },
   "devDependencies": {
