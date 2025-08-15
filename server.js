@@ -128,7 +128,7 @@ if (UNIPILE_DSN) {
   const target = unipileBaseUrl || UNIPILE_DSN;
   // Preflight handling for CORS on proxied path
   app.options(
-    "/api/v1/*",
+    ["/api/v1", "/api/v1/:path*"],
     cors({
       origin: "https://account.unipile.com",
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -137,7 +137,7 @@ if (UNIPILE_DSN) {
     })
   );
   app.options(
-    "/unipile-api/*",
+    ["/unipile-api", "/unipile-api/:path*"],
     cors({
       origin: "https://account.unipile.com",
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -148,7 +148,7 @@ if (UNIPILE_DSN) {
 
   // Some hosted flows build absolute "/api/v1/..." paths from api_url origin only
   app.use(
-    "/api/v1",
+    ["/api/v1", "/api/v1/*"],
     createProxyMiddleware({
       target,
       changeOrigin: true,
@@ -168,7 +168,7 @@ if (UNIPILE_DSN) {
   );
 
   app.use(
-    "/unipile-api",
+    ["/unipile-api", "/unipile-api/*"],
     createProxyMiddleware({
       target,
       changeOrigin: true,
