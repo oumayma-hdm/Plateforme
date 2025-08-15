@@ -3,6 +3,7 @@
   "routes": [
     { "src": "/connect/linkedin", "dest": "/api/index.js" },
     { "src": "/unipile/notify", "dest": "/api/index.js" },
+    { "src": "/unipile-api/(.*)", "dest": "/api/index.js" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
