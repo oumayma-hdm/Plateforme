@@ -111,17 +111,6 @@ app.post("/unipile/notify", (req, res) => {
 // Proxy Unipile API via our domain so the hosted wizard can call port 443
 if (UNIPILE_DSN) {
   const target = unipileBaseUrl || UNIPILE_DSN;
-  // Preflight handling for CORS on proxied path
-  app.options(
-    "/unipile-api/*",
-    cors({
-      origin: "https://account.unipile.com",
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "x-api-key"],
-      credentials: false,
-    })
-  );
-
   app.use(
     "/unipile-api",
     createProxyMiddleware({
@@ -133,13 +122,6 @@ if (UNIPILE_DSN) {
       },
       onProxyReq: (proxyReq) => {
         proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
-      },
-      onProxyRes: (proxyRes) => {
-        proxyRes.headers["access-control-allow-origin"] = "*";
-        proxyRes.headers["access-control-allow-methods"] =
-          "GET,POST,PUT,PATCH,DELETE,OPTIONS";
-        proxyRes.headers["access-control-allow-headers"] =
-          "Content-Type, x-api-key";
       },
       logLevel: "silent",
     })
