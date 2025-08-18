@@ -34,9 +34,9 @@ const BASE_URL =
 
 const UNIPILE_DSN = process.env.UNIPILE_DSN;
 const UNIPILE_API_KEY = process.env.UNIPILE_API_KEY;
-const SUCCESS_URL = process.env.SUCCESS_URL || null;
-const FAILURE_URL = process.env.FAILURE_URL || null;
-const NOTIFY_URL = process.env.NOTIFY_URL || null;
+const SUCCESS_URL = process.env.SUCCESS_URL || `${BASE_URL}/success`;
+const FAILURE_URL = process.env.FAILURE_URL || `${BASE_URL}/failure`;
+const NOTIFY_URL = process.env.NOTIFY_URL || `${BASE_URL}/unipile/notify`;
 
 if (!UNIPILE_DSN || !UNIPILE_API_KEY) {
   // eslint-disable-next-line no-console
@@ -57,17 +57,7 @@ app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-function getRequestBaseUrl(req) {
-  const proto = (
-    req.headers["x-forwarded-proto"] ||
-    req.protocol ||
-    "https"
-  ).toString();
-  const host = (req.headers.host || "").toString();
-  return `${proto}://${host}`;
-}
-
-app.get("/connect/linkedin", async (req, res) => {
+app.get("/connect/linkedin", async (_req, res) => {
   try {
     if (!unipile) {
       return res
@@ -76,20 +66,15 @@ app.get("/connect/linkedin", async (req, res) => {
     }
 
     const expiresOn = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-    const requestBase = getRequestBaseUrl(req);
-    const apiUrlForHosted = `${requestBase}/unipile-api`;
-    const successForHosted = SUCCESS_URL || `${requestBase}/success`;
-    const failureForHosted = FAILURE_URL || `${requestBase}/failure`;
-    const notifyForHosted = NOTIFY_URL || `${requestBase}/unipile/notify`;
     const hosted = await unipile.account.createHostedAuthLink({
       type: "create",
       expiresOn,
-      // Point to our reverse proxy so the hosted wizard uses port 443 on our domain
-      api_url: apiUrlForHosted,
+      // Important: point to our reverse proxy so the hosted wizard uses port 443 on our domain
+      api_url: `${BASE_URL}/unipile-api`,
       providers: ["LINKEDIN"],
-      success_redirect_url: successForHosted,
-      failure_redirect_url: failureForHosted,
-      notify_url: notifyForHosted,
+      success_redirect_url: SUCCESS_URL,
+      failure_redirect_url: FAILURE_URL,
+      notify_url: NOTIFY_URL,
     });
 
     if (hosted && hosted.url) {
