@@ -3,7 +3,6 @@ const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { createProxyMiddleware } = require("http-proxy-middleware");
 
 // Load environment variables from .env if present, else from env.local
 const envPathDot = path.join(__dirname, ".env");
@@ -69,8 +68,8 @@ app.get("/connect/linkedin", async (_req, res) => {
     const hosted = await unipile.account.createHostedAuthLink({
       type: "create",
       expiresOn,
-      // Important: point to our reverse proxy so the hosted wizard uses port 443 on our domain
-      api_url: `${BASE_URL}/unipile-api`,
+      // Important: api_url must point to your Unipile API base (DSN), not your app URL
+      api_url: unipileBaseUrl,
       providers: ["LINKEDIN"],
       success_redirect_url: SUCCESS_URL,
       failure_redirect_url: FAILURE_URL,
@@ -107,26 +106,6 @@ app.post("/unipile/notify", (req, res) => {
   console.log("Unipile notify:", JSON.stringify(req.body));
   res.status(204).end();
 });
-
-// Proxy Unipile API via our domain so the hosted wizard can call port 443
-if (UNIPILE_DSN) {
-  const target = unipileBaseUrl || UNIPILE_DSN;
-  app.use(
-    "/unipile-api",
-    createProxyMiddleware({
-      target,
-      changeOrigin: true,
-      secure: true,
-      pathRewrite: {
-        "^/unipile-api": "",
-      },
-      onProxyReq: (proxyReq) => {
-        proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
-      },
-      logLevel: "silent",
-    })
-  );
-}
 
 // If running on Vercel, export the Express handler instead of listening
 if (process.env.VERCEL) {
