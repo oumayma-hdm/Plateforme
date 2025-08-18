@@ -136,46 +136,6 @@ if (UNIPILE_DSN) {
   app.use("/api/v1", corsForHosted);
   app.use("/unipile-api", corsForHosted);
 
-  // Explicitly terminate preflight before proxying
-  app.use("/unipile-api", (req, res, next) => {
-    if (req.method === "OPTIONS") {
-      const requestHeaders =
-        req.headers["access-control-request-headers"] ||
-        "Content-Type, x-api-key";
-      res.setHeader(
-        "Access-Control-Allow-Origin",
-        "https://account.unipile.com"
-      );
-      res.setHeader("Vary", "Origin");
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-      );
-      res.setHeader("Access-Control-Allow-Headers", requestHeaders);
-      return res.status(204).end();
-    }
-    return next();
-  });
-  app.use("/api/v1", (req, res, next) => {
-    if (req.method === "OPTIONS") {
-      const requestHeaders =
-        req.headers["access-control-request-headers"] ||
-        "Content-Type, x-api-key";
-      res.setHeader(
-        "Access-Control-Allow-Origin",
-        "https://account.unipile.com"
-      );
-      res.setHeader("Vary", "Origin");
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-      );
-      res.setHeader("Access-Control-Allow-Headers", requestHeaders);
-      return res.status(204).end();
-    }
-    return next();
-  });
-
   // Some hosted flows build absolute "/api/v1/..." paths from api_url origin only
   app.use(
     "/api/v1",
@@ -183,16 +143,11 @@ if (UNIPILE_DSN) {
       target,
       changeOrigin: true,
       secure: true,
-      headers: {
-        // Ensure CORS passthrough for preflight
-        "Access-Control-Allow-Origin": "https://account.unipile.com",
-      },
       onProxyReq: (proxyReq) => {
         proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
       },
       onProxyRes: (proxyRes) => {
-        proxyRes.headers["access-control-allow-origin"] =
-          "https://account.unipile.com";
+        proxyRes.headers["access-control-allow-origin"] = "*";
         proxyRes.headers["access-control-allow-methods"] =
           "GET,POST,PUT,PATCH,DELETE,OPTIONS";
         proxyRes.headers["access-control-allow-headers"] =
@@ -211,15 +166,11 @@ if (UNIPILE_DSN) {
       pathRewrite: {
         "^/unipile-api": "",
       },
-      headers: {
-        "Access-Control-Allow-Origin": "https://account.unipile.com",
-      },
       onProxyReq: (proxyReq) => {
         proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
       },
       onProxyRes: (proxyRes) => {
-        proxyRes.headers["access-control-allow-origin"] =
-          "https://account.unipile.com";
+        proxyRes.headers["access-control-allow-origin"] = "*";
         proxyRes.headers["access-control-allow-methods"] =
           "GET,POST,PUT,PATCH,DELETE,OPTIONS";
         proxyRes.headers["access-control-allow-headers"] =
