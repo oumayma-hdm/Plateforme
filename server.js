@@ -128,42 +128,12 @@ if (UNIPILE_DSN) {
   const target = unipileBaseUrl || UNIPILE_DSN;
   // Preflight handling for CORS on proxied path
   app.options(
-    "/api/v1/*",
-    cors({
-      origin: "https://account.unipile.com",
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "x-api-key"],
-      credentials: false,
-    })
-  );
-  app.options(
     "/unipile-api/*",
     cors({
       origin: "https://account.unipile.com",
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "x-api-key"],
       credentials: false,
-    })
-  );
-
-  // Some hosted flows build absolute "/api/v1/..." paths from api_url origin only
-  app.use(
-    "/api/v1",
-    createProxyMiddleware({
-      target,
-      changeOrigin: true,
-      secure: true,
-      onProxyReq: (proxyReq) => {
-        proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
-      },
-      onProxyRes: (proxyRes) => {
-        proxyRes.headers["access-control-allow-origin"] = "*";
-        proxyRes.headers["access-control-allow-methods"] =
-          "GET,POST,PUT,PATCH,DELETE,OPTIONS";
-        proxyRes.headers["access-control-allow-headers"] =
-          "Content-Type, x-api-key";
-      },
-      logLevel: "silent",
     })
   );
 
