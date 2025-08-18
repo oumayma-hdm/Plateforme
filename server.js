@@ -187,8 +187,20 @@ if (UNIPILE_DSN) {
         // Ensure CORS passthrough for preflight
         "Access-Control-Allow-Origin": "https://account.unipile.com",
       },
-      onProxyReq: (proxyReq) => {
+      onProxyReq: (proxyReq, req) => {
         proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
+        // If Express has already parsed the body, re-send it to the target
+        if (
+          req.method !== "GET" &&
+          req.method !== "HEAD" &&
+          req.body &&
+          Object.keys(req.body).length > 0
+        ) {
+          const bodyData = JSON.stringify(req.body);
+          proxyReq.setHeader("Content-Type", "application/json");
+          proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+          proxyReq.write(bodyData);
+        }
       },
       onProxyRes: (proxyRes) => {
         proxyRes.headers["access-control-allow-origin"] =
@@ -214,8 +226,19 @@ if (UNIPILE_DSN) {
       headers: {
         "Access-Control-Allow-Origin": "https://account.unipile.com",
       },
-      onProxyReq: (proxyReq) => {
+      onProxyReq: (proxyReq, req) => {
         proxyReq.setHeader("x-api-key", UNIPILE_API_KEY || "");
+        if (
+          req.method !== "GET" &&
+          req.method !== "HEAD" &&
+          req.body &&
+          Object.keys(req.body).length > 0
+        ) {
+          const bodyData = JSON.stringify(req.body);
+          proxyReq.setHeader("Content-Type", "application/json");
+          proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+          proxyReq.write(bodyData);
+        }
       },
       onProxyRes: (proxyRes) => {
         proxyRes.headers["access-control-allow-origin"] =
