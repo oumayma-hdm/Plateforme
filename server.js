@@ -4,6 +4,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const axios = require("axios");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 // Load environment variables from .env if present, else from env.local
 const envPathDot = path.join(__dirname, ".env");
