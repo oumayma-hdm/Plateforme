@@ -98,8 +98,9 @@ app.get("/connect/linkedin", async (_req, res) => {
     const params = {
       type: "create",
       expiresOn,
-      api_url: apiUrl,
-      base_url: apiUrl, // Try adding base_url as well
+      redirect_url: apiUrl, // Try redirect_url as primary
+      base_url: apiUrl, // Keep base_url as backup
+      api_url: apiUrl, // Keep api_url as backup
       providers: ["LINKEDIN"],
       success_redirect_url: `${publicOrigin}/success`,
       failure_redirect_url: `${publicOrigin}/failure`,
@@ -278,6 +279,18 @@ app.post("/unipile/notify", (req, res) => {
 app.get("/api/v1/hosted/accounts/auth_payload", (req, res) => {
   console.log("Received auth_payload request from hosted page:", req.query);
 
+  // Set CORS headers
+  res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key, X-Requested-With, Authorization"
+  );
+  res.header("Vary", "Origin");
+
   // This endpoint should return the authentication payload
   // For now, let's return a success response
   res.json({
@@ -288,10 +301,26 @@ app.get("/api/v1/hosted/accounts/auth_payload", (req, res) => {
   });
 });
 
+// Handle OPTIONS preflight request for CORS
+app.options("/api/v1/hosted/accounts/auth_payload", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key, X-Requested-With, Authorization"
+  );
+  res.header("Vary", "Origin");
+  res.status(200).end();
+});
+
 // If running on Vercel, export the Express handler instead of listening
 if (process.env.VERCEL) {
   module.exports = app;
 } else {
+  // Listen on the main port (3000)
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`Server running on ${BASE_URL}`);

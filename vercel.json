@@ -3,6 +3,16 @@
   "routes": [
     { "src": "/connect/linkedin", "dest": "/api/index.js" },
     { "src": "/unipile/notify", "dest": "/api/index.js" },
+    { 
+      "src": "/api/v1/hosted/accounts/auth_payload", 
+      "dest": "/api/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://account.unipile.com",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, x-api-key, X-Requested-With, Authorization",
+        "Vary": "Origin"
+      }
+    },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
