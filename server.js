@@ -301,6 +301,36 @@ app.get("/api/v1/hosted/accounts/auth_payload", (req, res) => {
   });
 });
 
+// Handle the unipile-api prefixed auth_payload endpoint that Unipile actually calls
+app.get("/unipile-api/api/v1/hosted/accounts/auth_payload", (req, res) => {
+  console.log(
+    "Received unipile-api auth_payload request from hosted page:",
+    req.query
+  );
+
+  // Set CORS headers
+  res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key, X-Requested-With, Authorization"
+  );
+  res.header("Vary", "Origin");
+
+  // This endpoint should return the authentication payload
+  // For now, let's return a success response
+  res.json({
+    success: true,
+    message: "Auth payload endpoint reached via unipile-api path",
+    timestamp: new Date().toISOString(),
+    query: req.query,
+    note: "This request came through the /unipile-api path",
+  });
+});
+
 // Handle OPTIONS preflight request for CORS
 app.options("/api/v1/hosted/accounts/auth_payload", (req, res) => {
   res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
@@ -314,6 +344,48 @@ app.options("/api/v1/hosted/accounts/auth_payload", (req, res) => {
   );
   res.header("Vary", "Origin");
   res.status(200).end();
+});
+
+// Handle OPTIONS preflight request for the unipile-api path
+app.options("/unipile-api/api/v1/hosted/accounts/auth_payload", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key, X-Requested-With, Authorization"
+  );
+  res.header("Vary", "Origin");
+  res.status(200).end();
+});
+
+// Catch-all handler for any other /unipile-api/* paths
+app.all("/unipile-api/*", (req, res) => {
+  console.log(`Unipile API request: ${req.method} ${req.path}`);
+
+  // Set CORS headers
+  res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, x-api-key, X-Requested-With, Authorization"
+  );
+  res.header("Vary", "Origin");
+
+  // For now, return a generic response
+  res.json({
+    success: true,
+    message: "Unipile API endpoint reached",
+    timestamp: new Date().toISOString(),
+    path: req.path,
+    method: req.method,
+    note: "This is a catch-all handler for /unipile-api/* paths",
+  });
 });
 
 // If running on Vercel, export the Express handler instead of listening
