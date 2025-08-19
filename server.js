@@ -361,33 +361,6 @@ app.options("/unipile-api/api/v1/hosted/accounts/auth_payload", (req, res) => {
   res.status(200).end();
 });
 
-// Catch-all handler for any other /unipile-api/* paths
-app.all("/unipile-api/*", (req, res) => {
-  console.log(`Unipile API request: ${req.method} ${req.path}`);
-
-  // Set CORS headers
-  res.header("Access-Control-Allow-Origin", "https://account.unipile.com");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type, x-api-key, X-Requested-With, Authorization"
-  );
-  res.header("Vary", "Origin");
-
-  // For now, return a generic response
-  res.json({
-    success: true,
-    message: "Unipile API endpoint reached",
-    timestamp: new Date().toISOString(),
-    path: req.path,
-    method: req.method,
-    note: "This is a catch-all handler for /unipile-api/* paths",
-  });
-});
-
 // If running on Vercel, export the Express handler instead of listening
 if (process.env.VERCEL) {
   module.exports = app;
